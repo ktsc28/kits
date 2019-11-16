@@ -8,9 +8,10 @@ import cv2
 from preprocessing import resize_image
 
 class DataGen(keras.utils.Sequence):
-    def __init__(self, path, batch_size=1):
+    def __init__(self, path, batch_size=1, is_validation=False):
         self.df = pd.DataFrame(columns=['case_id', 'image', 'mask'])
         self.batch_size = batch_size
+        self.is_validation = is_validation
         file_list = [] 
         for root, dirs, files in os.walk(path):
             for folder in dirs:
@@ -24,6 +25,8 @@ class DataGen(keras.utils.Sequence):
 
 
     def __getitem__(self, case_num, size=(128, 128, 128)):
+        if self.is_validation == True:
+            case_num += 200
         img = self.df.loc[self.df['case_id'] == case_num]['image']
         print("THIS IS WHAT WE ON")
         print(img)
@@ -48,7 +51,7 @@ class DataGen(keras.utils.Sequence):
         pass
 
     def __len__(self):
-       return 200 
+       return 200
 
 def load_data():
     train_gen = DataGen("/home/kits/kits19/data/training")
@@ -60,8 +63,11 @@ def numpy2nifti(np_img, affine, name):
 
 if __name__ == "__main__":
     data = DataGen("/home/kits/kits19/data/training")
-    for i in range(1):
-        img1, mask = data.__getitem__(i)
+    validation = DataGen("/home/kits/kits19/data/validation", is_validation=True)
+    for i in range(0, 10):
+        img1, mask = validation.__getitem__(i)
+        print(img1.shape)
+    
 
     #print(img.get_data_dtype() == np.dtype(np.int8))
     #print("Done")
