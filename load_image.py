@@ -4,6 +4,8 @@ import pandas as pd
 import os
 import tensorflow as tf
 from tensorflow import keras
+import cv2
+from preprocessing import resize_image
 
 class DataGen(keras.utils.Sequence):
     def __init__(self, path, batch_size=1):
@@ -17,19 +19,25 @@ class DataGen(keras.utils.Sequence):
                 case_id = folder[-3:]
                 self.df = self.df.append({'case_id':int(case_id), 'image':image_path, 'mask':mask_path}, ignore_index=True)
         self.df = self.df.sort_values(by=['case_id'])
-        print(self.df)
-
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+            print(self.df)
 
 
     def __getitem__(self, case_num):
         img = self.df.loc[self.df['case_id'] == case_num]['image']
+        print("THIS IS WHAT WE ON")
+        print(img)
         img = nib.load(img.values[0])
+        affine = img.affine
         img = img.get_fdata()
-        print(type(img))
-        img = np.append(img, np.zeros((512, 512)), 1)
+        img = resize_image(img, (256, 256, 256))
+        img = np.expand_dims(img, axis=3)
+        #numpy2nifti(img, affine, 'img.nii.gz')
         mask = self.df.loc[self.df['case_id'] == case_num]['mask']
         mask = nib.load(mask.values[0])
         mask = mask.get_data()
+        mask = resize_image(mask,(256, 256, 256))
+        #numpy2nifti(mask, affine, 'mask.nii.gz')
         mask = mask / 2
         return img, mask
 
@@ -40,14 +48,17 @@ class DataGen(keras.utils.Sequence):
        return 300 
 
 def load_data():
-    train_gen = DataGen("/home/kits/kits19/data")
+    train_gen = DataGen("/home/kits/kits19/data/training")
     return train_gen
 
+def numpy2nifti(np_img, affine, name):
+    ni_img = nib.Nifti1Image(np_img, affine)
+    nib.save(ni_img, name)
 
 if __name__ == "__main__":
-    data = DataGen("/home/kits/kits19/data")
-    img1, mask = data.__getitem__(1)
+    data = DataGen("/home/kits/kits19/data/training")
+    for i in range(1):
+        img1, mask = data.__getitem__(i)
 
-    print(img1.shape)
     #print(img.get_data_dtype() == np.dtype(np.int8))
     #print("Done")

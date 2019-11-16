@@ -7,5 +7,6 @@ import cv2
 
 if __name__ == "__main__":
     data_loader = load_data()
-    img, mask = data_loader.__getitem__(0)
-    pass
+    model = load_model((256, 256, 256, 1))
+    model.compile(optimizer='adam', loss="binary_crossentropy", metrics=["accuracy"])
+    model.fit_generator(data_loader, steps_per_epoch=10)
