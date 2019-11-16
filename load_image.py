@@ -23,29 +23,32 @@ class DataGen(keras.utils.Sequence):
             print(self.df)
 
 
-    def __getitem__(self, case_num):
+    def __getitem__(self, case_num, size=(128, 128, 128)):
         img = self.df.loc[self.df['case_id'] == case_num]['image']
         print("THIS IS WHAT WE ON")
         print(img)
         img = nib.load(img.values[0])
         affine = img.affine
         img = img.get_fdata()
-        img = resize_image(img, (256, 256, 256))
+        img = resize_image(img, size)
         img = np.expand_dims(img, axis=3)
+        img = np.expand_dims(img, axis=0)
         #numpy2nifti(img, affine, 'img.nii.gz')
         mask = self.df.loc[self.df['case_id'] == case_num]['mask']
         mask = nib.load(mask.values[0])
         mask = mask.get_data()
-        mask = resize_image(mask,(256, 256, 256))
+        mask = resize_image(mask,size)
         #numpy2nifti(mask, affine, 'mask.nii.gz')
         mask = mask / 2
+        mask = np.expand_dims(mask, axis=3)
+        mask = np.expand_dims(mask, axis=0)
         return img, mask
 
     def on_epoch_end(self):
         pass
 
     def __len__(self):
-       return 300 
+       return 200 
 
 def load_data():
     train_gen = DataGen("/home/kits/kits19/data/training")

@@ -3,18 +3,22 @@ import nibabel as nib
 import tensorflow as tf 
 
 def load_model(input_shape):
-    input_layer = tf.keras.layers.Input(shape=input_shape)
+    input_layer = tf.keras.layers.Input(shape=input_shape, batch_size=1)
+    print('Layer Shape: ' + str(input_layer.shape))
     conv_1 = tf.keras.layers.Conv3D(filters=16, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(input_layer)
     conv_2 = tf.keras.layers.Conv3D(filters=16, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(conv_1)
     pool_1 = tf.keras.layers.MaxPool3D((2, 2, 2), strides=None, data_format='channels_last')(conv_2)
+    print('Layer Shape: ' + str(pool_1.shape))
 
     conv_3 = tf.keras.layers.Conv3D(filters=32, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(pool_1)
     conv_4 = tf.keras.layers.Conv3D(filters=32, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(conv_3)
     pool_2 = tf.keras.layers.MaxPool3D((2, 2, 2), strides=(2,2,2), data_format='channels_last')(conv_4)
+    print('Layer Shape: ' + str(pool_2.shape))
     
     conv_5 = tf.keras.layers.Conv3D(filters=64, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(pool_2)
     conv_6 = tf.keras.layers.Conv3D(filters=64, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(conv_5)
     pool_3 = tf.keras.layers.MaxPool3D((2, 2, 2), strides=(2,2,2), data_format='channels_last')(conv_6)
+    print('Layer Shape: ' + str(pool_3.shape))
 
     # Bottleneck
     conv_7 = tf.keras.layers.Conv3D(filters=128, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(pool_3)
@@ -43,6 +47,6 @@ def load_model(input_shape):
 if __name__ == "__main__":
     #img = nib.load('kits19\data\case_00000\imaging.nii.gz')
     #shape = img.dataobj.shape
-    model = load_model((600, 512, 512, 1))
+    model = load_model((256, 256, 256, 1))
     model.compile(optimizer='adam', loss="binary_crossentropy", metrics=["accuracy"])
     model.summary()
