@@ -5,7 +5,7 @@ import os
 import tensorflow as tf
 from tensorflow import keras
 import cv2
-from preprocessing import resize_image
+from preprocessing import process, resize_image
 
 class DataGen(keras.utils.Sequence):
     def __init__(self, path, batch_size=1, is_validation=False):
@@ -33,22 +33,24 @@ class DataGen(keras.utils.Sequence):
             mask = np.load(self.path + '/' +"{}_m.npy".format(case_num))
             return img, mask
         
-        except IOError, FileNotFoundError:
+        except (IOError, FileNotFoundError):
             img = self.df.loc[self.df['case_id'] == case_num]['image']
             #print("THIS IS WHAT WE ON")
             img = nib.load(img.values[0])
             affine = img.affine
             img = img.get_fdata()
-            img = resize_image(img, size)
+            img = process(img, size)
             img = np.expand_dims(img, axis=3)
             img = np.expand_dims(img, axis=0)
             #numpy2nifti(img, affine, 'img.nii.gz')
             mask = self.df.loc[self.df['case_id'] == case_num]['mask']
             mask = nib.load(mask.values[0])
             mask = mask.get_data()
-            mask = resize_image(mask,size)
+            mask = resize_image(mask, size, is_mask=True)
             #numpy2nifti(mask, affine, 'mask.nii.gz')
-            mask = mask / 2
+            #mask = mask / 2
+            mask_off = mask > 1.5
+            mask[mask_off] = 0
             mask = np.expand_dims(mask, axis=3)
             mask = np.expand_dims(mask, axis=0)
 
@@ -62,8 +64,8 @@ class DataGen(keras.utils.Sequence):
     def __len__(self):
        return self.df.shape[0]
 
-def load_data(path):
-    train_gen = DataGen(path)
+def load_data(path, is_validation=False):
+    train_gen = DataGen(path, is_validation=is_validation)
     return train_gen
 
 def numpy2nifti(np_img, affine, name):
@@ -73,8 +75,7 @@ def numpy2nifti(np_img, affine, name):
 if __name__ == "__main__":
     data = DataGen("/home/kits/kits19/data/training")
     validation = DataGen("/home/kits/kits19/data/validation", is_validation=True)
-    for i in range(0, 10):
-        img1, mask = data.__getitem__(i)
-        print(img1.shape)
+    for i in range(0, 20):
+        img1, mask = validation.__getitem__(i)
     
 

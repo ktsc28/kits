@@ -43,6 +43,6 @@ def load_model(input_shape):
 if __name__ == "__main__":
     #img = nib.load('kits19\data\case_00000\imaging.nii.gz')
     #shape = img.dataobj.shape
-    model = load_model((256, 256, 256, 1))
+    model = load_model((128, 128, 128, 1))
     model.compile(optimizer='adam', loss="binary_crossentropy", metrics=["accuracy"])
     model.summary()
