@@ -28,7 +28,6 @@ class DataGen(keras.utils.Sequence):
         if self.is_validation == True:
             case_num += 200
         try:
-            print(self.path + '/' + "{}_i.npy".format(case_num))
             img = np.load(self.path + '/' + "{}_i.npy".format(case_num))
             mask = np.load(self.path + '/' +"{}_m.npy".format(case_num))
             return img, mask
