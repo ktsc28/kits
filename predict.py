@@ -1,22 +1,20 @@
 import numpy as np
 import tensorflow as tf
 from load_image import load_data,numpy2nifti
-from model import load_model
+from vnet import vnet
 from preprocessing import resize_image
 
 
 def predict():
-    model = load_model((128,128,128,1))
-    model.load_weights("UNetW.h5")
+    model = vnet()
+    model.load_weights("weights/VNetW.h5")
     
     loader = load_data("/home/kits/kits19/data/validation/", is_validation=True)
     img, _ = loader.__getitem__(0)
     mask = model.predict(img)
     
     mask = np.squeeze(np.array(mask))
-    print(mask.shape)
     img = np.squeeze(np.array(img))
-    print(img.shape)
 
     max_val =np.max(mask)
     mid = max_val * 0.40

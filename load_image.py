@@ -7,7 +7,8 @@ from tensorflow import keras
 import cv2
 from preprocessing import process, resize_image
 
-class DataGen(keras.utils.Sequence):
+
+class DataGen(tf.keras.utils.Sequence):
     def __init__(self, path, batch_size=1, is_validation=False):
         self.df = pd.DataFrame(columns=['case_id', 'image', 'mask'])
         self.batch_size = batch_size

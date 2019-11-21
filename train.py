@@ -1,20 +1,23 @@
-from model import load_model
+from unet import unet
+from vnet import vnet
 from load_image import load_data
-import tensorflow as tf 
-from tensorflow import keras
-import numpy as np
-import cv2
 from numba import cuda
-cuda.select_device(0)
-cuda.close()
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
+
 
 if __name__ == "__main__":
-    epochs = 1
+    cuda.select_device(0)
+    cuda.close()
+
+    epochs = 100
     data_loader = load_data("/home/kits/kits19/data/training")
     validation_loader = load_data("/home/kits/kits19/data/validation", is_validation=True)
-    model = load_model((128, 128, 128, 1))
-    adam = tf.keras.optimizers.Adam(learning_rate=0.0005)
-    #run_opts = tf.RunOptions(report_tensor_allocations_upon_oom = True)
-    model.compile(optimizer=adam, loss="binary_crossentropy", metrics=["accuracy"])
-    model.fit_generator(data_loader, validation_data=validation_loader, steps_per_epoch=200, validation_steps=10, epochs=epochs)
-    model.save_weights("UNetW.h5")
+    
+    callbacks = list()
+    callbacks.append(ModelCheckpoint("weights/VNetW.h5", monitor='val_loss', save_weights_only=True, save_best_only=True))
+    callbacks.append(ReduceLROnPlateau(factor=0.5, patience=2, verbose=1))
+    callbacks.append(EarlyStopping(patience=2))
+    
+    model = vnet()
+    model.fit_generator(data_loader, validation_data=validation_loader, steps_per_epoch=200, validation_steps=10, epochs=epochs, callbacks=callbacks)
+    model.save_weights("weights/VNetW.h5")

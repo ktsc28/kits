@@ -1,45 +1,7 @@
-import functools
-
 import tensorflow as tf
 from tensorflow.python.keras.layers import *
-from tensorflow.python.keras import activations
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.optimizers import Adam
-from tensorflow.python.keras.initializers import glorot_uniform
-
-
-class Deconvolution3D(Layer):
-    def __init__(self, filters, kernel_size, output_shape, subsample):
-        self.filters = filters
-        self.kernel_size = kernel_size
-        self.strides = (1,) + subsample + (1,)
-        self.output_shape_ = output_shape
-        #assert K.backend() == 'tensorflow'
-        super(Deconvolution3D, self).__init__()
-
-    def build(self, input_shape):
-        assert len(input_shape) == 5
-        self.input_shape_ = input_shape
-        W_shape = self.kernel_size + (self.filters, input_shape[4],)
-        #print(self.output_shape_)
-        print(self.name)
-        self.w = self.add_weight(shape=W_shape,
-                                 initializer=functools.partial(glorot_uniform()),
-                                 name='{}_W'.format(self.name))
-        self.b = self.add_weight(shape=(1, 1, 1, self.filters,), initializer='zero', name='{}_b'.format(self.name))
-        self.built = True
-
-    def compute_output_shape(self, input_shape):
-        return (None,) + self.output_shape_[1:]
-
-    def call(self, x, mask=None):
-        return tf.nn.conv3d_transpose(x, self.W, output_shape=self.output_shape_,
-                                      strides=self.strides, padding='SAME', name=self.name) + self.b
-
-    def get_config(self):
-        base_config = super(Deconvolution3D, self).get_config().copy()
-        base_config['output_shape'] = self.output_shape_
-        return base_config
 
 
 def downward_layer(input_layer, n_convolutions, n_output_channels):
@@ -66,9 +28,7 @@ def upward_layer(input0, input1, n_convolutions, n_output_channels):
                    padding='same', kernel_initializer='he_normal')(inl)
         )
     add_l = add([inl, merged])
-    shape = add_l.get_shape().as_list()
-    new_shape = (1, shape[1] * 2, shape[2] * 2, shape[3] * 2, n_output_channels)
-    upsample = Deconvolution3D(n_output_channels, (2, 2, 2), new_shape, subsample=(2, 2, 2))(add_l)
+    upsample = tf.keras.layers.Conv3DTranspose(filters=n_output_channels, kernel_size=(2, 2, 2), padding='same', strides=2)(add_l)
     return PReLU()(upsample)
 
 
@@ -97,9 +57,7 @@ def vnet(input_size=(128, 128, 128, 1), optimizer=Adam(lr=1e-4),
     conv_5_3 = Conv3D(256, kernel_size=(5, 5, 5), padding='same', kernel_initializer='he_normal')(conv_5_2)
     conv_5_3 = PReLU()(conv_5_3)
     add5 = add([conv_5_3, down4])
-    aux_shape = add5.get_shape()
-    upsample_5 = Deconvolution3D(128, (2, 2, 2), (1, aux_shape[1].value*2,aux_shape[2].value*2,
-                                                  aux_shape[3].value*2, 128), subsample=(2, 2, 2))(add5)
+    upsample_5 = tf.keras.layers.Conv3DTranspose(filters=128, kernel_size=(2, 2, 2), strides=2, padding='same')(add5)
     upsample_5 = PReLU()(upsample_5)
 
     # Layer 6,7,8
@@ -115,6 +73,7 @@ def vnet(input_size=(128, 128, 128, 1), optimizer=Adam(lr=1e-4),
     conv_9_2 = Conv3D(1, kernel_size=(1, 1, 1), padding='same', kernel_initializer='he_normal')(add_9)
     conv_9_2 = PReLU()(conv_9_2)
 
+    # Output layer
     sigmoid = Conv3D(1, kernel_size=(1, 1, 1), padding='same', kernel_initializer='he_normal',
                      activation='sigmoid')(conv_9_2)
 
