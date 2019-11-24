@@ -1,7 +1,7 @@
 import tensorflow as tf 
-from tensorflow.python.keras.layers import *
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.optimizers import Adam
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 
 
 def unet(input_shape=(128, 128, 128, 1), optimizer=Adam(lr=0.0005),

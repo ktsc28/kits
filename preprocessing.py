@@ -2,7 +2,6 @@ import numpy as np
 from skimage.transform import resize
 import nibabel as nib
 import pandas as pd
-import cv2
 
 def resize_image(img, target, is_mask=False):
     t = img.dtype

@@ -4,7 +4,6 @@ import pandas as pd
 import os
 import tensorflow as tf
 from tensorflow import keras
-import cv2
 from preprocessing import process, resize_image
 
 
@@ -73,9 +72,9 @@ def numpy2nifti(np_img, affine, name):
     nib.save(ni_img, name)
 
 if __name__ == "__main__":
-    data = DataGen("/home/kits/kits19/data/training")
-    validation = DataGen("/home/kits/kits19/data/validation", is_validation=True)
-    for i in range(0, 20):
-        img1, mask = validation.__getitem__(i)
-    
+    data = DataGen("/srv/kits19/data/training")
+    validation = DataGen("/srv/kits19/data/validation", is_validation=True)
+    for i in range(0, 10):
+        print(i)
+        img1, mask = validation.__getitem__(i)    
 
