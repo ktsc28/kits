@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pickle
 
 
 def visualize_history(history):
@@ -10,7 +11,7 @@ def visualize_history(history):
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig('accurracy.png', bbox_inches='tight')
-    plt.show()
+    plt.close()
     # summarize history for loss
     plt.plot(history['loss'])
     plt.plot(history['val_loss'])
@@ -23,6 +24,6 @@ def visualize_history(history):
 
 
 if __name__ == "__main__":
-    with open('history/history.db', 'rb') as file_pi:
-        history = pickle.load(history.history, file_pi)
+    with open('history.db', 'rb') as file_pi:
+        history = pickle.load(file_pi)
         visualize_history(history)

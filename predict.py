@@ -2,14 +2,15 @@ import numpy as np
 import tensorflow as tf
 from load_image import load_data,numpy2nifti
 from vnet import vnet
+from unet import unet
 from preprocessing import resize_image
 
 
 def predict():
-    model = vnet()
-    model.load_weights("weights/VNetW.h5")
+    model = unet()
+    model.load_weights("best_VNetW.h5")
     
-    loader = load_data("/home/kits/kits19/data/validation/", is_validation=True)
+    loader = load_data("/srv/kits19/data/validation/", is_validation=True)
     img, _ = loader.__getitem__(0)
     mask = model.predict(img)
     

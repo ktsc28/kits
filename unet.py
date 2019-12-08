@@ -4,7 +4,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
 
-def unet(input_shape=(128, 128, 128, 1), optimizer=Adam(lr=0.0005),
+def unet(input_shape=(128, 128, 128, 1), optimizer=Adam(lr=0.00001),
          loss='binary_crossentropy', metrics=["accuracy"], batch_size=1):
     input_layer = Input(shape=input_shape, batch_size=batch_size)
     conv_1 = Conv3D(filters=16, kernel_size=(3, 3, 3), strides=(1, 1, 1), padding='same', activation='relu', data_format='channels_last')(input_layer)
