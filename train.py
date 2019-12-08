@@ -2,10 +2,7 @@ from unet import unet
 from vnet import vnet
 from load_image import load_data
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint, CSVLogger
-<<<<<<< HEAD
 import tensorflow as tf
-=======
->>>>>>> 6a89274f0e8a4c46752a3fb1cda314ee1950ebec
 import pickle
 
 
