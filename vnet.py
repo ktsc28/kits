@@ -69,15 +69,15 @@ def vnet(input_size=(128, 128, 128, 1), optimizer=Adam(lr=1e-5),
     conv_9_1 = Conv3D(32, kernel_size=5, strides=1, padding='same', kernel_initializer='he_normal')(merged_9)
     conv_9_1 = PReLU()(conv_9_1)
     add_9 = add([conv_9_1, merged_9])
-    conv_9_2 = Conv3D(2, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(add_9)
+    conv_9_2 = Conv3D(1, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(add_9)
     conv_9_2 = PReLU()(conv_9_2)
 
     # Output layer
-    #sigmoid = Conv3D(1, kernel_size=1, padding='same', kernel_initializer='he_normal',
-    #                 activation='sigmoid')(conv_9_2)
-    softmax = Softmax()(conv_9_2)
+    sigmoid = Conv3D(1, kernel_size=1, padding='same', kernel_initializer='he_normal',
+                     activation='sigmoid')(conv_9_2)
+    #softmax = Softmax()(conv_9_2)
 
-    model = Model(inputs=inputs, outputs=softmax)
+    model = Model(inputs=inputs, outputs=sigmoid)
     model.compile(optimizer, loss, metrics)
 
     return model

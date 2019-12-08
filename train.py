@@ -1,7 +1,8 @@
 from unet import unet
 from vnet import vnet
 from load_image import load_data
-from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint, CSVLogger
+import tensorflow as tf
 import pickle
 
 
@@ -18,10 +19,10 @@ if __name__ == "__main__":
     callbacks = list()
     callbacks.append(ModelCheckpoint("weights/best_VNetW.h5", monitor='val_loss', save_weights_only=True, save_best_only=True, verbose=1))
     # callbacks.append(ReduceLROnPlateau(factor=0.5, patience=2, verbose=1))
-    callbacks.append(EarlyStopping(monitor='val_loss', patience=5))
+    callbacks.append(EarlyStopping(monitor='val_loss', patience=10))
     callbacks.append(CSVLogger("training.log", append=True))
     
     model = vnet()
-    history = model.fit_generator(data_loader, validation_data=validation_loader, steps_per_epoch=200, validation_steps=10, epochs=epochs)
+    history = model.fit_generator(data_loader, validation_data=validation_loader, steps_per_epoch=200, validation_steps=10, epochs=epochs, callbacks=callbacks)
     model.save_weights("weights/VNetW.h5")
     save_history(history)
