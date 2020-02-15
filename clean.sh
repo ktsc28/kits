@@ -1,4 +1,4 @@
 #!/bin/bash
-rm -f /home/kits/kits19/data/training/*.npy
-rm -f /home/kits/kits19/data/validation/*.npy
+rm -f /home/ctadmin/data_drive/kits19/data/training/*.npy
+rm -f /home/ctadmin/data_drive/kits19/data/validation/*.npy
 

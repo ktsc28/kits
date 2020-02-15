@@ -13,8 +13,8 @@ def save_history(history):
 
 if __name__ == "__main__":
     epochs = 50
-    data_loader = load_data("/srv/kits19/data/training")
-    validation_loader = load_data("/srv/kits19/data/validation", is_validation=True)
+    data_loader = load_data("/home/ctadmin/data_drive/kits19/data/training_patches")
+    validation_loader = load_data("/home/kits/kits19/data/validation_patches", is_validation=True)
     
     callbacks = list()
     callbacks.append(ModelCheckpoint("best_VNetW.h5", monitor='val_loss', save_weights_only=True, save_best_only=True, verbose=1))
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     callbacks.append(EarlyStopping(monitor='val_loss', patience=10))
     callbacks.append(CSVLogger("training.log", append=True))
     
-    model = vnet()
-    history = model.fit_generator(data_loader, validation_data=validation_loader, steps_per_epoch=200, validation_steps=10, epochs=epochs, callbacks=callbacks)
+    model = unet()
+    history = model.fit_generator(data_loader, validation_data=validation_loader, epochs=epochs, callbacks=callbacks)
     model.save_weights("weights/VNetW.h5")
     save_history(history)
